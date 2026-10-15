@@ -30,9 +30,9 @@ class _BookstoreAppState extends State<BookstoreApp> {
     title: 'Tiệm sách',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF326A57)),
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF74518B)),
       useMaterial3: true,
-      scaffoldBackgroundColor: const Color(0xFFF8F7F2),
+      scaffoldBackgroundColor: const Color(0xFFF8F6FB),
     ),
     // Chuyển màn hình bằng trạng thái đăng nhập đang giữ trong bộ nhớ.
     home: username == null
@@ -114,10 +114,16 @@ class _AuthPageState extends State<AuthPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    Icons.menu_book_rounded,
-                    size: 72,
-                    color: Theme.of(context).colorScheme.primary,
+                  CircleAvatar(
+                    radius: 46,
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .primaryContainer,
+                    child: Icon(
+                      Icons.local_library_rounded,
+                      size: 50,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -128,8 +134,8 @@ class _AuthPageState extends State<AuthPage> {
                   const SizedBox(height: 8),
                   Text(
                     registerMode
-                        ? 'Tạo tài khoản mới'
-                        : 'Đăng nhập để xem sách',
+                        ? 'Tạo tài khoản để bắt đầu'
+                        : 'Cùng khám phá những cuốn sách hay',
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -250,7 +256,7 @@ class _BooksPageState extends State<BooksPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('Danh sách sách'),
+      title: const Text('Tủ sách'),
       actions: [
         IconButton(
           tooltip: 'Tải lại',
@@ -281,35 +287,67 @@ class _BooksPageState extends State<BooksPage> {
         if (items.isEmpty) {
           return const Center(child: Text('Chưa có sách nào.'));
         }
-        return RefreshIndicator(
-          onRefresh: refresh,
-          child: ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final book = items[index];
-              return Card(
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(14),
-                  leading: const CircleAvatar(child: Icon(Icons.auto_stories)),
-                  title: Text(book.name, maxLines: 2),
-                  subtitle: Text(
-                    '${book.author.isEmpty ? 'Chưa rõ tác giả' : book.author}\n${formatPrice(book.price)}',
-                  ),
-                  isThreeLine: true,
-                  trailing: const Icon(Icons.chevron_right),
-                  // Bấm vào sách để mở trang chi tiết với book.id tương ứng.
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) =>
-                          BookDetailPage(api: widget.api, id: book.id),
-                    ),
-                  ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+              child: Text(
+                'Khám phá ${items.length} cuốn sách',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: refresh,
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+                  itemCount: items.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final book = items[index];
+                    return Card(
+                      elevation: 0,
+                      color: Theme.of(context).colorScheme.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ),
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(14),
+                        leading: CircleAvatar(
+                          radius: 28,
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .tertiaryContainer,
+                          child: const Icon(Icons.bookmark_rounded),
+                        ),
+                        title: Text(book.name, maxLines: 2),
+                        subtitle: Text(
+                          '${book.author.isEmpty ? 'Chưa rõ tác giả' : book.author}\n${formatPrice(book.price)}',
+                        ),
+                        isThreeLine: true,
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
+                        ),
+                        // Bấm vào sách để mở trang chi tiết với book.id tương ứng.
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                BookDetailPage(api: widget.api, id: book.id),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         );
       },
     ),
@@ -359,7 +397,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                 color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(Icons.menu_book_rounded, size: 90),
+              child: const Icon(Icons.auto_stories_rounded, size: 90),
             ),
             const SizedBox(height: 24),
             Text(item.name, style: Theme.of(context).textTheme.headlineMedium),
